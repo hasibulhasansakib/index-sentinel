@@ -1,5 +1,5 @@
 === Index Sentinel – SEO Spam & Malware Monitor ===
-Contributors: hasibulhasansakib
+Contributors: hasibulhasanshakib
 Donate link: https://hasibulhasansakib.com/
 Tags: seo spam, malware scanner, japanese keyword hack, search console, security
 Requires at least: 6.2
