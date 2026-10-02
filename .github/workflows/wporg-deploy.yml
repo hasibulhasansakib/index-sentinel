@@ -1,0 +1,23 @@
+# Deploy a tagged release to WordPress.org SVN (after the plugin is approved).
+# Add repository secrets SVN_USERNAME and SVN_PASSWORD, then every pushed tag (v1.2.3) ships to WordPress.org,
+# and every site that installed the plugin gets the update in its WordPress dashboard.
+name: Deploy to WordPress.org
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.WPORG_DEPLOY == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: WordPress.org plugin deploy
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: index-sentinel
+          ASSETS_DIR: .wordpress-org

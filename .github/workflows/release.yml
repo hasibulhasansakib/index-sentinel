@@ -1,0 +1,39 @@
+# Build an installable zip whenever a version tag (v1.2.3) is pushed and attach it to a GitHub Release.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the tag matches the plugin version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          HEADER=$(grep -m1 "^ \* Version:" index-sentinel.php | awk '{print $3}')
+          STABLE=$(grep -m1 "^Stable tag:" readme.txt | awk '{print $3}')
+          echo "tag=$TAG header=$HEADER stable=$STABLE"
+          test "$TAG" = "$HEADER" && test "$TAG" = "$STABLE"
+
+      - name: Lint PHP
+        run: find . -name "*.php" -not -path "./.git/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Build zip
+        run: |
+          mkdir -p build/index-sentinel
+          rsync -a --exclude-from=.distignore ./ build/index-sentinel/
+          cd build && zip -rq index-sentinel.zip index-sentinel
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/index-sentinel.zip
+          generate_release_notes: true
